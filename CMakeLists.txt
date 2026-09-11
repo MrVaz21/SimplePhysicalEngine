@@ -4,9 +4,7 @@ project(SimplePhysicsEngine CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# ============================================================
-# 1. Raylib через FetchContent
-# ============================================================
+
 include(FetchContent)
 
 set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
@@ -19,10 +17,7 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(raylib)
 
-# ============================================================
-# 2. Исходники (.cpp)
-#    main.cpp в src/ — путь от корня проекта
-# ============================================================
+
 set(SOURCES
     src/main.cpp
     # если появятся другие .cpp — допиши сюда:
@@ -30,16 +25,10 @@ set(SOURCES
     # src/material_point.cpp
 )
 
-# ============================================================
-# 3. Исполняемый файл
-# ============================================================
+
 add_executable(simple_engine ${SOURCES})
 
-# ============================================================
-# 4. Папки с заголовками
-#    Include/ — твои самописные .hpp
-#    src/     — на случай #include "..." рядом с main.cpp
-# ============================================================
+
 target_include_directories(simple_engine PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/Include
     ${CMAKE_CURRENT_SOURCE_DIR}/src
