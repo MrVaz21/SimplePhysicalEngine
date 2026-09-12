@@ -31,10 +31,10 @@ double x;
 double y;
 double radius;
 double mass;
-
+string color;
 vector<force_data>forces;
-material_point(const double &massi, const double &xi, const double &yi, const double &radius_i)
-:mass(massi), x(xi), y(yi), radius(radius_i){}
+material_point(const double &massi, const double &xi, const double &yi, const double &radius_i, const string& color_i = "blue")
+:mass(massi), x(xi), y(yi), radius(radius_i), color(color_i){}
 
 size_t get_force_data_by_name(const string &name){
     for(int ind = 0; ind < forces.size(); ind++){

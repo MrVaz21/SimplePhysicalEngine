@@ -5,8 +5,15 @@
 #include<raylib.h>
 #include<thread>
 #include<chrono>
+#include<map>
 using namespace std;
-
+struct screen_settings{
+    const float SCALE;
+    const int screenWidth;
+    const int screenHeight;
+    screen_settings(const int screenWighti = 800, const int screenHeighti = 600, const float SCALEi = 50)
+    : screenWidth(screenWighti), screenHeight(screenHeighti),  SCALE(SCALEi){}
+};
 class simple_engine{
 private:
     const double gravity_const = 6.6743 * 10e-11; 
@@ -15,7 +22,7 @@ public:
     bool gravity= true;
     vector<material_point>points;
 
-    size_t add_point(material_point&point){
+    size_t add_point(material_point&point ){
         points.push_back(point);
         return points.size() - 1;
     }
@@ -91,59 +98,75 @@ public:
                         point.speed = point.speed - n_hat * (factor * cand_point.mass);
                         cand_point.speed = cand_point.speed + n_hat * (factor * point.mass);
                     }
-                }
-
-
-                
+                }     
             }
-           
-            
-            
         }
     }
-};
+    static screen_settings get_presset(const string &presset_name){
+        map<string, screen_settings>mp = {
+            {"simple", screen_settings(800, 600, 50)}, 
+            {"default", screen_settings(1024, 768, 50)},
+            {"mega", screen_settings(1920, 1080, 3.34 / 1e9)}
+        };
 
-int main(void){
-    const float SCALE = 50;
-    const int screenWidth = 800;
-    const int screenHeight = 600;
-   
-    InitWindow(screenWidth, screenHeight, "Simple Engine Visualization");
-    SetTargetFPS(60);
-
-    simple_engine engine;
-
-    material_point point1(50000000, 0, 0, 1);
-    material_point point3(500000000, 2, 2, 0.2);
-    
- //  point1.apply_impulse(vector2(10, 0));
-    
-    material_point point2(5, 1, 0, 0.1);
-
-    point2.apply_impulse(vector2(0, 1));
-    engine.add_point(point1);
-    engine.add_point(point2);
-    engine.add_point(point3);
-    this_thread::sleep_for(chrono::milliseconds(100));
-    
-    while (!WindowShouldClose()) {
+        if(mp.count(presset_name)){
+            return mp[presset_name];
+        }
+        return mp["simple"];
+    }
+    static Color get_color_by_color_name(const string &color_name){
+        map<string, Color>mp = {
+            {"blue", Color({137, 207, 240, 255})},
+            {"yellow", Color({255, 250, 0, 255})},
+            {"white", Color({255, 255, 255, 255})}, 
+            {"orange", Color({255, 127, 39, 255})}
+        };
+        if(mp.count(color_name)){
+            return mp[color_name];
+        }
+        return mp["white"];
+    }
+    void start_screen(const screen_settings &settings){
+        InitWindow(settings.screenWidth, settings.screenHeight, "Simple Engine Visualization");
+        SetTargetFPS(60);
+        this_thread::sleep_for(chrono::milliseconds(100));
+        while (!WindowShouldClose()) {
         
         float deltaTime = GetFrameTime();
-        engine.update_points_states(deltaTime);
+        (*this).update_points_states(deltaTime);
 
-    
         BeginDrawing();
         ClearBackground(BLACK);
 
-        for (const material_point &point : engine.points) {
-            screen_data data = point.get_pixel_coords(screenHeight, screenWidth, SCALE);
-            DrawCircleV({ data.x, data.y }, data.radius, GREEN);
+        for (const material_point &point : this->points) {
+            screen_data data = point.get_pixel_coords(settings.screenHeight, settings.screenWidth, settings.SCALE);
+            DrawCircleV({ data.x, data.y }, data.radius, get_color_by_color_name(point.color));
         }
 
         EndDrawing();
     }
 
     CloseWindow();
+    }
+};
+
+int main(void){
+
+    simple_engine engine;
+    engine.gravity = false;
+    material_point sun(1.98892 * 1e30, 0, 0, 4.49 *1e9, "yellow");
+    material_point earth(5.972 * 1e24, 0, 149.6 * 1e9, 1.5 * 1e9, "blue");
+
+    material_point mars(6.417 * 1e23, 0, 152.6 * 1e9, 1 * 1e9, "orange");
+    earth.apply_impulse(vector2(1e35, 0));
+    mars.apply_impulse(vector2(1e34 * 1.5, 0));
+    engine.gravity = true;
+    engine.add_point(sun);
+    engine.add_point(earth);
+    engine.add_point(mars);
+
+    engine.start_screen(simple_engine::get_presset("mega"));
+
     return 0;
 }
 // F = m1 * m2 / r * 2 * G
