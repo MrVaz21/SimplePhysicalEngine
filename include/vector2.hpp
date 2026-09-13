@@ -33,8 +33,11 @@ public:
     double get_sz(){
         return sqrtl(pw(this->x) + pw(this->y));
     }
-    vector2 normalize(){
-        return (*this) / get_sz();
+    void normalize(){
+        if (get_sz() <=1e-5){
+            return;
+        }
+        (*this) =  (*this) / get_sz();
     }
 
 

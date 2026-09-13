@@ -57,6 +57,10 @@ void delete_force_by_name(const string &name){
         }
     }
 }
+
+void apply_speed(const vector2 &speed){
+    this->speed = this->speed + speed;
+}
 static double dist(const material_point &point1, const material_point &point2){
     return sqrtl((point1.x - point2.x) *(point1.x - point2.x) + (point2.y - point1.y) * (point2.y - point1.y));  
 }
